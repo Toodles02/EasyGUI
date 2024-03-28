@@ -1,0 +1,7 @@
+name: EasyGUI
+version: '${version}'
+main: org.toodles.easygui.EasyGUI
+api-version: '1.19'
+load: STARTUP
+authors: [Toodles]
+description: A library made for making Bukkit/Paper GUIs easy 
