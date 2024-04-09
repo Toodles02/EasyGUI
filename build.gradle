@@ -1,8 +1,10 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
-group = 'com.github.toodles'
+apply plugin: 'maven-publish'
+group = 'com.github.toodles02'
 version = '1.0-SNAPSHOT'
 
 repositories {
