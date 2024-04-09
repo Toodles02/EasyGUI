@@ -1,4 +1,4 @@
-package org.toodles.easygui.api.inventory;
+package com.github.toodles02.easygui.api.inventory;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -6,48 +6,41 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 
 
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-import org.toodles.easygui.api.manager.InventoryManager;
+import com.github.toodles02.easygui.api.manager.InventoryManager;
 
 import java.util.ArrayList;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A custom inventory util for creating bukkit inventories fast.
  */
-public class CustomInventory {
+public class VanillaInventory implements CustomInventory {
 
-    private final InventoryType type;
-    private final List<ItemStack> items = new ArrayList<>();
-    private final InventoryHandler handler = new InventoryHandler();
-    private Inventory inventory = null;
+    protected final InventoryType type;
+    protected final List<ItemStack> items = new ArrayList<>();
+    protected final InventoryHandler handler = new InventoryHandler();
+    protected Inventory inventory = null;
 
-    private final NamespacedKey namespace;
+    protected final NamespacedKey namespace;
 
-    private Component title = Component.text("Default");
-
-    private InventoryShape shape = null;
+    protected Component title = Component.text("Default");
 
 
     /**
-     * Creates a {@link CustomInventory} of the desired {@link InventoryType} and {@link NamespacedKey}.
+     * Creates a {@link VanillaInventory} of the desired {@link InventoryType} and {@link NamespacedKey}.
      *
      * @param type The {@link InventoryType} of this custom inventory.
      * @param namespace The {@link NamespacedKey} that will be used to register this object. See {@link #register()} for more info.
      */
-    public CustomInventory(InventoryType type, NamespacedKey namespace) {
+    public VanillaInventory(InventoryType type, NamespacedKey namespace) {
         if (!type.isCreatable()) {
             throw new IllegalArgumentException("inventory type is not supported");
         }
@@ -60,45 +53,41 @@ public class CustomInventory {
      * Sets the title of this inventory. Defaults to "Default" if not set.
      *
      * @param component The {@link Component} to be used for the title.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory setTitle(Component component) {
+    @Override
+    public VanillaInventory setTitle(Component component) {
         this.title = component;
         return this;
     }
 
     /**
      * Creates an inventory with this instance's fields including the {@link InventoryType} and title {@link Component} and
-     * the provided size.
+     * the provided rows.
      * If the inventory type is not a chest, use {@link #create()}.
      *
-     * @param size The size of the inventory.
-     * @return {@link CustomInventory}
-     * @throws IllegalArgumentException If the inventory type is not a chest, the size is not a multiple of 9, or the size is greater than 54.
+     * @param rows The rows of the inventory.
+     * @return {@link VanillaInventory}
+     * @throws IllegalArgumentException If the inventory type is not a chest, the rows is not a multiple of 9, or the rows is greater than 54.
      */
-    public CustomInventory create(int size) throws IllegalArgumentException {
+    @Override
+    public VanillaInventory create(int rows) throws IllegalArgumentException {
 
         if (type == InventoryType.CHEST) {
 
-            initializeShape();
-
-            if (size >= 54 && size % 9 == 0) {
-                inventory = Bukkit.createInventory(null, size, title);
+            if (rows > 0 && rows < 7) {
+                inventory = Bukkit.createInventory(null, rows * 9, title);
 
                 for (int i = 0; i < items.size(); i++) {
-                    if (items.get(i).getType() == Material.AIR) {
-                        continue;
-                    }
-
                     inventory.setItem(i, items.get(i));
                 }
 
             } else {
-                throw new IllegalArgumentException("invalid size for creating inventory");
+                throw new IllegalArgumentException("invalid rows for creating inventory");
             }
 
         } else {
-            throw new IllegalArgumentException("invalid type for creating an inventory of that size");
+            throw new IllegalArgumentException("invalid type for creating an inventory of that rows");
         }
 
         return this;
@@ -109,12 +98,11 @@ public class CustomInventory {
      * If the inventory type is a chest, it will default to a size of 27 slots. See
      * {@link #create(int)} if you want to create an inventory with a different size.
      *
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory create() {
+    @Override
+    public VanillaInventory create() {
         if (type == InventoryType.CHEST) {
-
-            initializeShape();
 
             inventory = Bukkit.createInventory(null, 27, title);
 
@@ -136,30 +124,19 @@ public class CustomInventory {
     /**
      * Registers this inventory into the {@link InventoryManager}.
      *
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory register() {
+    @Override
+    public VanillaInventory register() {
         InventoryManager.register(this);
         return this;
-    }
-    private void initializeShape() {
-        if (shape != null) {
-            Map<Character, ItemStack> shapeMap = shape.getShapeMap();
-            for (int i = 0; i < shape.getShape().length(); i++) {
-                if (shapeMap.get(shape.getShape().charAt(i)) == null) {
-                    throw new IllegalStateException("character is not set in shape");
-                }
-                items.add(i, shapeMap.get(shape.getShape().charAt(i)));
-            }
-        } else {
-            throw new IllegalStateException("shape is null");
-        }
     }
 
     /**
      * Opens the inventory to the provided {@link Player}.
      * @param player The {@link Player} to open the inventory for.
      */
+    @Override
     public void open(Player player) {
         player.openInventory(inventory);
     }
@@ -167,47 +144,34 @@ public class CustomInventory {
     /**
      * Closes the inventory regardless of the viewer(s).
      */
+    @Override
     public void close() {
         inventory.close();
     }
 
 
     /**
-     * Sets the slot at the provided index of this inventory to the provided {@link ItemStack}. See {@link #setShape(InventoryShape)} for dynamic inventory shaping.
+     * Sets the slot at the provided index of this inventory to the provided {@link ItemStack}. See {@link ShapedInventory} for dynamic inventory shaping.
      *
      * @param index The index of the slot, starting from 0, for the {@link ItemStack} to be added at.
      * @param itemStack The {@link ItemStack} to be added.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory setSlot(int index, ItemStack itemStack) {
+    @Override
+    public VanillaInventory setSlot(int index, ItemStack itemStack) {
         items.set(index, itemStack);
         return this;
     }
 
 
     /**
-     * Sets the shape of this inventory.
-     *
-     * @param shape The {@link InventoryShape} to be used.
-     * @return {@link CustomInventory}
-     * @throws IllegalStateException If this inventory's type is not a chest inventory.
-     */
-    public CustomInventory setShape(InventoryShape shape) throws IllegalStateException {
-        if (type != InventoryType.CHEST) {
-            throw new IllegalStateException("can't shape this inventory type");
-        }
-
-        this.shape = shape;
-        return this;
-    }
-
-    /**
      * Sets the handler for the {@link InventoryOpenEvent}.
      *
      * @param handler The handler to be set.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory onOpen(Consumer<InventoryOpenEvent> handler) {
+    @Override
+    public VanillaInventory onOpen(Consumer<InventoryOpenEvent> handler) {
         this.handler.setHandler(InventoryOpenEvent.class, handler);
         return this;
     }
@@ -216,9 +180,10 @@ public class CustomInventory {
      * Sets the handler for the {@link InventoryCloseEvent}.
      *
      * @param handler The handler to be set.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory onClose(Consumer<InventoryCloseEvent> handler) {
+    @Override
+    public VanillaInventory onClose(Consumer<InventoryCloseEvent> handler) {
         this.handler.setHandler(InventoryCloseEvent.class, handler);
         return this;
     }
@@ -227,9 +192,10 @@ public class CustomInventory {
      * Sets the handler for the {@link InventoryClickEvent}.
      *
      * @param handler The handler to be set.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory onClick(Consumer<InventoryClickEvent> handler) {
+    @Override
+    public VanillaInventory onClick(Consumer<InventoryClickEvent> handler) {
         this.handler.setHandler(InventoryClickEvent.class, handler);
         return this;
     }
@@ -238,9 +204,10 @@ public class CustomInventory {
      * Sets the handler for the {@link InventoryDragEvent}.
      *
      * @param handler The handler to be set.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory onDrag(Consumer<InventoryDragEvent> handler) {
+    @Override
+    public VanillaInventory onDrag(Consumer<InventoryDragEvent> handler) {
         this.handler.setHandler(InventoryDragEvent.class, handler);
         return this;
     }
@@ -251,9 +218,10 @@ public class CustomInventory {
      * Note, this event is only triggered when a hopper or other entity moves an item into this inventory.
      *
      * @param handler The handler to be set.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory onEntityMoveItem(Consumer<InventoryMoveItemEvent> handler) {
+    @Override
+    public VanillaInventory onEntityMoveItem(Consumer<InventoryMoveItemEvent> handler) {
         this.handler.setHandler(InventoryMoveItemEvent.class, handler);
         return this;
     }
@@ -262,9 +230,10 @@ public class CustomInventory {
      * Sets the handler for the {@link InventoryCreativeEvent}.
      *
      * @param handler The handler to be set.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory onCreative(Consumer<InventoryCreativeEvent> handler) {
+    @Override
+    public VanillaInventory onCreative(Consumer<InventoryCreativeEvent> handler) {
         this.handler.setHandler(InventoryCreativeEvent.class, handler);
         return this;
     }
@@ -273,25 +242,20 @@ public class CustomInventory {
      * Sets the handler for the {@link InventoryPickupItemEvent}.
      *
      * @param handler The handler to be set.
-     * @return {@link CustomInventory}
+     * @return {@link VanillaInventory}
      */
-    public CustomInventory onPickUp(Consumer<InventoryPickupItemEvent> handler) {
+    @Override
+    public VanillaInventory onPickUp(Consumer<InventoryPickupItemEvent> handler) {
         this.handler.setHandler(InventoryPickupItemEvent.class, handler);
         return this;
     }
 
-    /**
-     * Returns the {@link InventoryShape}.
-     * @return {@link InventoryShape}.
-     */
-    public InventoryShape getShape() {
-        return shape;
-    }
 
     /**
      * Returns the {@link NamespacedKey} linked to this instance.
      * @return {@link NamespacedKey}.
      */
+    @Override
     public NamespacedKey getKey() {
         return namespace;
     }
@@ -300,6 +264,7 @@ public class CustomInventory {
      * Returns the title of this instance's inventory as a {@link Component}.
      * @return {@link Component}.
      */
+    @Override
     public Component getTitle() {
         return title;
     }
@@ -308,6 +273,7 @@ public class CustomInventory {
      * Returns the handler of this class.
      * @return {@link InventoryHandler}.
      */
+    @Override
     public InventoryHandler getHandler() {
         return handler;
     }
@@ -316,6 +282,7 @@ public class CustomInventory {
      * Returns the type of this instance's inventory.
      * @return {@link InventoryType}
      */
+    @Override
     public InventoryType getType() {
         return type;
     }
@@ -324,6 +291,7 @@ public class CustomInventory {
      * Returns the items of this inventory indexed by their slot.
      * @return A {@link List} of {@link ItemStack}
      */
+    @Override
     public List<ItemStack> getItems() {
         return inventory == null ? items : Arrays.asList(inventory.getContents());
     }
@@ -332,6 +300,7 @@ public class CustomInventory {
      * Returns the inventory of this instance.
      * @return {@link Inventory} if the inventory was created ({@link #create()}, {@link #create(int)}), null otherwise.
      */
+    @Override
     public Inventory getInventory() {
         return inventory;
     }

@@ -1,7 +1,11 @@
 name: EasyGUI
 version: '${version}'
-main: org.toodles.easygui.EasyGUI
+main: com.github.toodles02.easygui.EasyGUI
 api-version: '1.19'
 load: STARTUP
 authors: [Toodles]
 description: A library made for making Bukkit/Paper GUIs easy 
+commands:
+  test:
+    description: A test for the inventory api
+    usage: /test

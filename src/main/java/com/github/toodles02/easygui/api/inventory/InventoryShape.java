@@ -1,6 +1,6 @@
-package org.toodles.easygui.api.inventory;
+package com.github.toodles02.easygui.api.inventory;
 
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -10,18 +10,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A util for setting item slots and creating unique shapes fast for {@link CustomInventory}.
+ * A util for setting item slots and creating unique shapes fast for {@link VanillaInventory}.
  */
 public class InventoryShape {
 
     private final LinkedHashMap<Integer, String> shapes = new LinkedHashMap<>();
     private final Map<Character, ItemStack> shapeMap = new HashMap<>();
 
-    private final Pattern pattern = Pattern.compile("[A-Za-z]");
+    private final Pattern pattern = Pattern.compile("[A-Za-z]{9}");
     private final int rows;
 
     /**
-     * Creates an inventory shape which can be used on {@link CustomInventory}.
+     * Creates an inventory shape which can be used on {@link VanillaInventory}.
      *
      * @param rows The amount of rows of the inventory to be shaped.
      * @throws IllegalArgumentException If the amount of rows is greater than 6, or less than 1.
@@ -38,11 +38,11 @@ public class InventoryShape {
      * Sets the shape of the provided row
      * <p>
      *
-     * The format of the row is to represent items with letters ({@code Case Sensitive}). Each type of letter is separated by a '-'.
+     * The format of the row is to represent items with letters ({@code Case Sensitive}).
      * The maximum amount of letters is 9, and the minimum is 1.
      * <p>
      *
-     * Ex: "XXXX-yyy-zz" where X, y, and z can represent different items.
+     * Ex: "XXXXyyyzz" where X, y, and z can represent different items.
      * <p>
      *
      * <b>The letters of the shape in the provided row is synchronous with the shapes of all rows.</b>
@@ -55,12 +55,10 @@ public class InventoryShape {
         if (!matcher.matches()) {
             throw new IllegalArgumentException("invalid shape format");
         }
-        String measurable = shape.replaceAll("-", "");
-        if (measurable.length() > 9 || measurable.length() < 1) {
+        if (shape.length() > 9 || shape.length() < 1) {
             throw new IllegalArgumentException("invalid shape format");
         }
-
-        if (row <= rows && rows > 0) {
+        if (row <= rows && row > 0) {
             shapes.put(row, shape);
         }
     }
@@ -73,7 +71,7 @@ public class InventoryShape {
     public String getShape() {
         StringBuilder builder = new StringBuilder();
         for (String shape : shapes.values()) {
-            builder.append(shape).append("-");
+            builder.append(shape);
         }
         return builder.toString();
     }
@@ -86,16 +84,24 @@ public class InventoryShape {
      * @param item The {@link ItemStack} that will correspond with the letter.
      */
     public void map(char letter, ItemStack item) {
-        Matcher matcher = pattern.matcher(getShape());
-        matcher.reset();
-        while (matcher.find()) {
-            char foundLetter = matcher.group().charAt(0);
+        String shape = getShape();
+        for (int i = 0; i < shape.length(); i++) {
+            char foundLetter = shape.charAt(i);
             if (foundLetter == letter) {
                 shapeMap.put(letter, item);
                 return;
             }
         }
         throw new IllegalArgumentException("Letter not found in shape: " + letter);
+    }
+
+    /**
+     * Returns the rows of the {@link InventoryShape}
+     *
+     * @return The number of rows of the {@link InventoryShape}.
+     */
+    public int getRows() {
+        return rows;
     }
 
     /**
@@ -122,6 +128,24 @@ public class InventoryShape {
             }
         }
         return a;
+    }
+
+    /**
+     * Returns a {@link LinkedHashMap<Integer, ItemStack>} with the integer being the index of the slot
+     * @return {@link LinkedHashMap<Integer, ItemStack>}
+     */
+
+    public Map<Integer, ItemStack> getItems() {
+        Map<Integer, ItemStack> map = new HashMap<>();
+        String shape = getShape();
+        for (int i = 0; i < shape.length(); i++) {
+            if (shapeMap.get(shape.charAt(i)) == null) {
+                throw new IllegalStateException("character is not set in shape");
+            }
+            map.put(i, shapeMap.get(shape.charAt(i)));
+        }
+
+        return map;
     }
 
 }

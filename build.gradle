@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'org.toodles'
+group = 'com.github.toodles'
 version = '1.0-SNAPSHOT'
 
 repositories {

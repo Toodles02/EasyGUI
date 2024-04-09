@@ -1,20 +1,23 @@
-package org.toodles.easygui;
+package com.github.toodles02.easygui;
 
 
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.Event;
-import org.bukkit.event.inventory.InventoryEvent;
+import com.github.toodles02.easygui.api.event.InventoryListener;
+import com.github.toodles02.easygui.api.inventory.InventoryShape;
+import com.github.toodles02.easygui.api.inventory.ShapedInventory;
+import com.github.toodles02.easygui.api.inventory.VanillaInventory;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import org.toodles.easygui.api.event.InventoryListener;
 
 /**
  * The plugin class {@link EasyGUI}.
  */
 public final class EasyGUI extends JavaPlugin {
+
+    private static ShapedInventory testMenu;
 
     /**
      * Handles setup configurations when the server is enabled.
@@ -24,12 +27,10 @@ public final class EasyGUI extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         getLogger().info("Registered listener!");
-
-
     }
 
     /**
-     * Returns the server instance of {@link EasyGUI}.
+     * Returns this server instance.
      * @return {@link EasyGUI}.
      */
     public static EasyGUI getInstance() {

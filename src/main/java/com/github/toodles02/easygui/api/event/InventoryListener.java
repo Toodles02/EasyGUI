@@ -1,15 +1,16 @@
-package org.toodles.easygui.api.event;
+package com.github.toodles02.easygui.api.event;
 
 
+import com.github.toodles02.easygui.api.inventory.VanillaInventory;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
-import org.toodles.easygui.api.inventory.CustomInventory;
-import org.toodles.easygui.api.manager.InventoryManager;
+import com.github.toodles02.easygui.api.inventory.CustomInventory;
+import com.github.toodles02.easygui.api.manager.InventoryManager;
 
 /**
- * The listener for all registered {@link CustomInventory}.
+ * The listener for all registered {@link VanillaInventory}.
  */
 public class InventoryListener implements Listener {
 

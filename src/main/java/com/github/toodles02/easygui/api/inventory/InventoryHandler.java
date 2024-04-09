@@ -1,14 +1,12 @@
-package org.toodles.easygui.api.inventory;
+package com.github.toodles02.easygui.api.inventory;
 
-import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.*;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
 
 /**
- * A handler for handling inventory events, found in {@link CustomInventory}.
+ * A handler for handling inventory events, found in {@link VanillaInventory}.
  */
 public class InventoryHandler {
 
