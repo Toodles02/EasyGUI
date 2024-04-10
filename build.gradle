@@ -4,7 +4,7 @@ plugins {
 }
 
 
-group = 'com.github.Toodles02'
+group = 'com.github.toodles02'
 version = '1.0.1'
 
 repositories {
