@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-apply plugin: 'maven-publish'
+
 group = 'com.github.toodles02'
 version = '1.0.1'
 
