@@ -34,9 +34,6 @@ java {
     }
     withSourcesJar()
     withJavadocJar()
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
 }
 
 tasks.withType(JavaCompile).configureEach {
