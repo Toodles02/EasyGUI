@@ -7,8 +7,14 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
+/**
+ * A class representing shaped inventories using {@link InventoryShape}.
+ */
 public class ShapedInventory extends VanillaInventory {
 
+    /**
+     * The inventory shaped to be used by this inventory.
+     */
 
     protected InventoryShape shape = null;
 

@@ -6,6 +6,3 @@ load: STARTUP
 authors: [Toodles]
 description: A library made for making Bukkit/Paper GUIs easy 
 commands:
-  test:
-    description: A test for the inventory api
-    usage: /test

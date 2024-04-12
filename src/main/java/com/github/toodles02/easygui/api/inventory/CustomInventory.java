@@ -11,6 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * An interface for developing abstract inventories.
+ */
 public interface CustomInventory {
 
     /**
